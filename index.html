@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 04: It's not about the money — онлайн-урок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f8fc;--card:#fff;--ink:#23364a;--mute:#6b7f94;--line:#dbe6f0;--blue:#3b82d6;--blue-l:#e4f0fc;--green:#27a778;--green-l:#e0f6ec;--red:#e0566a;--red-l:#fde8eb;--sun:#ffb938;--sun-l:#fff4d9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 Nunito,system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:2px solid var(--line);padding:10px 16px}
+.top{max-width:860px;margin:auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{font-size:1.1rem;margin:0;font-weight:800;flex:1;min-width:200px}
+.score{font-weight:800;background:var(--sun-l);border-radius:20px;padding:4px 14px}
+.bar{max-width:860px;margin:8px auto 0;height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .4s}
+nav{max-width:860px;margin:14px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap}
+nav button{font:inherit;font-weight:700;border:2px solid var(--line);background:#fff;color:var(--ink);padding:8px 16px;border-radius:14px;cursor:pointer}
+nav button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+nav button.full::after{content:" ✔"}
+main{max-width:860px;margin:auto;padding:14px 16px 60px}
+.panel{display:none}.panel.on{display:block}
+.intro{background:var(--blue-l);border-radius:16px;padding:14px 18px;margin-bottom:16px}
+.intro p{margin:4px 0}
+.ex{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:18px}
+.ex h2{margin:0;font-size:1.15rem}
+.ex .ins{color:var(--mute);margin:2px 0 10px}
+.ex .sc{float:right;font-weight:800;color:var(--blue)}
+.item{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.item .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--blue-l);color:var(--blue);font-weight:800;text-align:center;line-height:28px}
+.item .b{flex:1}.item .q{margin:0 0 6px}
+.blank{display:inline-block;width:70px;border-bottom:2px solid var(--ink);margin:0 3px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap}
+.ctl button,.ctl input{font:inherit;border-radius:10px;border:2px solid var(--line);padding:6px 12px;background:#fff;color:var(--ink)}
+.ctl button{cursor:pointer;font-weight:600}
+.ctl button:hover:not(:disabled){border-color:var(--blue);background:var(--blue-l)}
+.ctl button:disabled{opacity:.45;cursor:default}
+.ctl .go{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ctl input{min-width:200px}
+.fb{margin:4px 0 0;font-weight:600;min-height:1px}
+.item.ok .n{background:var(--green);color:#fff}.item.ok .fb{color:var(--green)}
+.item.bad .n{background:var(--red);color:#fff}.item.bad .fb{color:var(--red)}
+.card{background:#fff;border:2px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:16px}
+.card h3{margin:0 0 6px}
+.who{background:var(--sun-l);border-radius:12px;padding:8px 12px;margin:8px 0}
+.ph{color:var(--blue);font-weight:600}
+.chk{display:flex;gap:10px;align-items:center;margin-top:10px;font-weight:700;cursor:pointer}
+.chk input{width:22px;height:22px;accent-color:var(--green)}
+.next{text-align:center;margin-top:8px;font-weight:800}
+.next button{font:inherit;font-weight:800;background:var(--green);color:#fff;border:none;border-radius:14px;padding:12px 24px;cursor:pointer}
+.next button:hover{filter:brightness(1.08)}
+.reset{background:none;border:none;color:var(--mute);text-decoration:underline;cursor:pointer;font:inherit}
+.rank{font-weight:800}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+ <div class="top"><h1>Unit 04: «It's not about the money»</h1><span class="rank" id="rank"></span><span class="score">⭐ <span id="pts">0</span> / <span id="max">0</span></span></div>
+ <div class="bar"><i id="fill"></i></div>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<main style="padding-top:0;text-align:center"><button class="reset" id="reset">Почати спочатку (скинути бали)</button></main>
+<script>
+const TABS=[
+{id:'tags',name:'❓ Question Tags',intro:'<p><b>Лайфхак «дзеркало»:</b> речення з «+» → tag з «−», речення з «−» → tag з «+».</p><p>Допоміжне дієслово беремо з речення: <b>is → isn\'t</b>, <b>works → doesn\'t</b>, <b>bought → didn\'t</b>, <b>has → hasn\'t</b>.</p><p>Особливі випадки: <b>I\'m … aren\'t I?</b> · <b>Let\'s … shall we?</b> · <b>There is … isn\'t there?</b></p>',ex:['t1','t2','t3']},
+{id:'plans',name:'📅 Plans',intro:'<p><b>be going to</b> = 🧠 «я вже вирішив(-ла)» (намір, плани).</p><p><b>Present Continuous</b> = 📅 «це є в календарі» (час, місце, людина — домовлено).</p><p>Питання-перевірка: <i>«Чи є точний час або домовленість?»</i> Так → Present Continuous. Ні → going to.</p>',ex:['p1','p2']},
+{id:'vocab',name:'🛒 Vocabulary',intro:'<p>Слова модуля: банк, магазин, онлайн-замовлення. Вгадуй і заробляй бали!</p>',ex:['v1','v2']},
+{id:'speak',name:'💬 Speaking',intro:'<p>Працюй у парі. Усі завдання подано українською, а розмовляти треба англійською. Виконали завдання разом — познач галочку й отримай бали.</p>',ex:[]}
+];
+const EX={
+t1:{t:'Вправа 1. Дописати tag (A)',i:'Впиши question tag (наприклад: didn\'t you).',items:[
+['You bought those shoes on sale, ___?',['didn\'t you']],
+['Catherine hasn\'t found her wallet yet, ___?',['has she']],
+['They are going to open a new bank account, ___?',['aren\'t they']],
+['Alex works as a cashier in a supermarket, ___?',['doesn\'t he']],
+['We didn\'t get any change from the assistant, ___?',['did we']],
+['You can pay by credit card here, ___?',['can\'t you']],
+['I\'m sitting in the right place, ___?',['aren\'t I']],
+['Let\'s check the receipt before leaving, ___?',['shall we']]]},
+t2:{t:'Вправа 2. Дописати tag (B)',i:'Впиши question tag.',items:[
+['She is trying on a dress in the fitting room, ___?',['isn\'t she']],
+['Robert saved enough money for his vacation, ___?',['didn\'t he']],
+['You aren\'t going to buy that expensive coat, ___?',['are you']],
+['There is a long queue near the box office, ___?',['isn\'t there']],
+['He has already transferred the money, ___?',['hasn\'t he']],
+['Your friends weren\'t standing in line, ___?',['were they']],
+['She doesn\'t like shopping online, ___?',['does she']],
+['They won\'t accept cards here, ___?',['will they']]]},
+t3:{t:'Вправа 3. Інтонація ↗ чи ↘',i:'Яка інтонація потрібна в tag?',items:[
+['You don\'t know if Tom has a bank card: «Tom has a bank card, doesn\'t he?»',['↗ Rising (справжнє питання)'],['↗ Rising (справжнє питання)','↘ Falling (підтвердження)']],
+['The coat is very expensive and you want your friend to agree: «It\'s expensive, isn\'t it?»',['↘ Falling (підтвердження)'],['↗ Rising (справжнє питання)','↘ Falling (підтвердження)']],
+['You can\'t remember if the shop is open on Sunday: «It\'s open on Sunday, isn\'t it?»',['↗ Rising (справжнє питання)'],['↗ Rising (справжнє питання)','↘ Falling (підтвердження)']],
+['You both stand in a huge queue: «The queue is long, isn\'t it?»',['↘ Falling (підтвердження)'],['↗ Rising (справжнє питання)','↘ Falling (підтвердження)']],
+['You think she paid by card, but you are not sure: «She paid by card, didn\'t she?»',['↗ Rising (справжнє питання)'],['↗ Rising (справжнє питання)','↘ Falling (підтвердження)']],
+['The sale is great and you expect agreement: «This is a great discount, isn\'t it?»',['↘ Falling (підтвердження)'],['↗ Rising (справжнє питання)','↘ Falling (підтвердження)']],
+['You really don\'t know if he saved money: «He didn\'t save any money, did he?»',['↗ Rising (справжнє питання)'],['↗ Rising (справжнє питання)','↘ Falling (підтвердження)']]]},
+p1:{t:'Вправа 4. going to чи Present Continuous?',i:'Обери правильну форму.',items:[
+['Look at my schedule! I ___ the HR manager tomorrow at 10:00.',['am meeting'],['am meeting','am going to meet'],'Є точний час → домовленість.'],
+['— Why are you saving money? — I ___ a new car when I have enough cash.',['am going to buy'],['am buying','am going to buy'],'Особисте рішення, без дати.'],
+['We ___ to Paris on Friday! I\'ve already bought the tickets.',['are flying'],['are flying','are going to fly'],'Квитки куплені → домовленість.'],
+['What ___ this weekend? Have you arranged anything with friends?',['are you doing'],['are you doing','are you going to do'],'Питаємо про домовленості.'],
+['She ___ on Saturday: it\'s her day off and she booked a spa.',['isn\'t working'],['isn\'t working','isn\'t going to work'],'Вихідний і запис у спа — вже заплановано.'],
+['They ___ a new shopping mall here next year, but they haven\'t started.',['are going to build'],['are building','are going to build'],'Лише намір, ще не почали.'],
+['I\'m cold. I think I ___ a warm cup of coffee.',['am going to order'],['am ordering','am going to order'],'Рішення без домовленості.'],
+['— When ___ then? — At 5 PM near the entrance.',['are we meeting'],['do we meet','are we meeting'],'Домовляємося про зустріч.']]},
+p2:{t:'Вправа 5. Знайди правильне речення',i:'Яке речення без помилки?',items:[
+['',['Is Alan going to book a flight for his vacation?'],['Is Alan going to book a flight for his vacation?','Is Alan going to booking a flight for his vacation?']],
+['',['She is going to travel abroad next month.'],['She is going to travel abroad next month.','She be going to travel abroad next month.']],
+['',['We are planning a trip to the beach this summer.'],['We are planning a trip to the beach this summer.','We are plan a trip to the beach this summer.']],
+['',['He\'s going to clean his apartment tomorrow.'],['He\'s going to clean his apartment tomorrow.','He\'s going clean his apartment tomorrow.']],
+['',['Robert is not going to buy presents for his colleagues.'],['Robert is not going to buy presents for his colleagues.','Robert is going not to buy presents for his colleagues.']],
+['',['I\'m seeing my doctor at 4 PM today. I have an appointment.'],['I\'m seeing my doctor at 4 PM today. I have an appointment.','I\'m see my doctor at 4 PM today. I have an appointment.']],
+['',['Are they having dinner at that Italian restaurant tonight?'],['Are they having dinner at that Italian restaurant tonight?','Are they haveing dinner at that Italian restaurant tonight?']]]},
+v1:{t:'Вправа 6. Що означає слово?',i:'Обери український переклад.',items:[
+['<b>receipt</b>',['чек'],['чек','цінник','решта']],
+['<b>fitting room</b>',['примірочна'],['примірочна','склад','каса']],
+['<b>queue</b>',['черга'],['черга','знижка','кошик']],
+['<b>change</b> (у магазині)',['решта'],['решта','гарантія','чек']],
+['<b>discount</b>',['знижка'],['знижка','відгук','картка']],
+['<b>guarantee</b>',['гарантія'],['гарантія','доставка','розмір']],
+['<b>transfer money</b>',['переказати гроші'],['переказати гроші','зняти гроші','заощадити']],
+['<b>price tag</b>',['цінник'],['цінник','касир','квитанція']]]},
+v2:{t:'Вправа 7. Вибери слово у речення',i:'Обери слово, яке підходить за змістом.',items:[
+['I want to ___ a new bank account.',['open'],['open','borrow','win']],
+['Can I ___ these jeans in the fitting room?',['try on'],['try on','put out','turn on']],
+['You can return or ___ the item within 14 days.',['exchange'],['exchange','enter','spend']],
+['The cashier gave me the wrong ___.',['change'],['change','queue','guarantee']],
+['I\'m going to ___ money for a new laptop.',['save'],['save','waste','lose']],
+['Read the customer ___ before you buy it online.',['reviews'],['reviews','queues','coins']],
+['This phone has a two-year ___.',['guarantee'],['guarantee','receipt','discount']],
+['Look at the price ___! It\'s 50% off.',['tag'],['tag','room','card']]]}
+};
+const SP=[
+{id:'s0',t:'🛒 Рольова гра A: Онлайн-магазин',a:'<b>Покупець:</b> замов товар (навушники або робот-пилосос). Спитай про характеристики, час роботи від акумулятора, відгуки покупців, терміни доставки та умови повернення чи обміну.',b:'<b>Менеджер підтримки:</b> привітайся й запропонуй допомогу. Розкажи про гарантію (2 роки), доставку (2–3 дні), повернення (14 днів) і оплату карткою або готівкою кур’єру.',ph:'«Я хотів(-ла) б замовити…» · «Розкажіть про характеристики» · «Скільки днів іде доставка?» · «Чи можна повернути або обміняти?» · «Чим можу допомогти?»'},
+{id:'s1',t:'👗 Рольова гра B: Магазин одягу',a:'<b>Покупець:</b> шукаєш джинси або куртку. Спитай, де примірочна і чи є знижка на річ із цінником. На касі розрахуйся готівкою, візьми чек і ввічливо скажи, що касир помилився з рештою.',b:'<b>Продавець / касир:</b> допоможи підібрати розмір і колір, розкажи про великі розпродажі, назви кінцеву ціну, видай чек і побажай гарного дня.',ph:'«Я шукаю…» · «Можна це приміряти?» · «Чи є знижка?» · «Мені дали неправильну решту» · «Гарного дня!»'},
+{id:'s2',t:'🏦 Рольова гра C: У банку',a:'<b>Клієнт:</b> відкрий рахунок, попроси кредитну картку для подорожі, дізнайся, як переказати гроші за кордон і підключити онлайн-банкінг.',b:'<b>Працівник банку:</b> поясни, що потрібно для відкриття рахунку, розкажи про онлайн-банкінг і правила безпеки даних картки, допоможи заповнити документи.',ph:'«Я хочу відкрити рахунок» · «Як переказати гроші за кордон?» · «Тут можна зняти гроші або покласти на рахунок» · «Нікому не кажіть дані картки»'},
+{id:'s3',t:'💵 Дискусія A: Готівка чи картка',a:'<b>Тема:</b> чи зникнуть готівкові гроші за 10 років? Обговоріть: 1) Як часто ти носиш готівку і які в цьому ризики? 2) Чим картки зручні за кордоном? 3) Чи допомагає готівка контролювати бюджет?',b:'',ph:'«На мою думку…» · «Важко уявити, що…» · «Чесно кажучи…» · «Розумію тебе, але…» · «Я з тобою згоден(-на)»'},
+{id:'s4',t:'📦 Дискусія B: Магазин чи онлайн',a:'<b>Команда «У магазині»:</b> можна перевірити матеріал, приміряти різні розміри, одразу забрати річ.<br><b>Команда «Онлайн»:</b> великий вибір, відгуки, нижчі ціни, немає черг. Кожна команда захищає свою позицію.',b:'',ph:'«Головна перевага — …» · «З іншого боку…» · «Можна…» · «Я надаю перевагу…, бо…»'},
+{id:'s5',t:'💰 Дискусія C: Чорна пʼятниця',a:'<b>Тема:</b> розпродаж — це вигода чи маркетингова пастка? Обговоріть: 1) Чи купував(-ла) ти щось лише через знижку? Чи користувався(-лась) річчю потім? 2) Як не витратити забагато під час розпродажів? 3) Складаєш список покупок чи купуєш спонтанно?',b:'',ph:'«Одного разу я купив(-ла)…» · «Зазвичай я складаю список» · «Це пастка, тому що…» · «Щоб заощадити, треба…»'}
+];
+const SPPTS=15,$=(s,e=document)=>e.querySelector(s);
+let S={};try{S=JSON.parse(localStorage.getItem('u4')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('u4',JSON.stringify(S))}catch(e){}};
+const norm=s=>s.toLowerCase().replace(/[’‘`]/g,"'").replace(/[?.!]/g,'').replace(/\s+/g,' ').trim();
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+function mkItem(id,i){
+ const [q,a,o,w]=EX[id].items[i],key=id+i,el=document.createElement('div');let tries=0;
+ el.className='item';
+ el.innerHTML=`<div class="n">${i+1}</div><div class="b"><p class="q">${q.replace('___','<span class="blank"></span>')}</p><div class="ctl"></div><p class="fb"></p></div>`;
+ const ctl=$('.ctl',el),fb=$('.fb',el);
+ const show=(p,ok)=>{el.classList.add(ok?'ok':'bad');ctl.innerHTML='';fb.innerHTML=(ok?`✅ +${p} б. `:`❌ Правильна відповідь: <b>${a[0]}</b>. `)+(w||'')};
+ if(S[key]!=null){show(S[key],S[key]>0);return el}
+ const check=v=>{
+  if(a.map(norm).includes(norm(v))){S[key]=tries?5:10;save();show(S[key],1);upd()}
+  else if(tries++){S[key]=0;save();show(0,0);upd()}
+  else fb.textContent='🤔 Не зовсім. Спробуй ще раз — за другу спробу 5 балів.';
+ };
+ if(o){shuf(o).forEach(t=>{const b=document.createElement('button');b.textContent=t;b.onclick=()=>{b.disabled=true;check(t)};ctl.append(b)})}
+ else{const inp=document.createElement('input'),b=document.createElement('button');inp.placeholder='Твоя відповідь';inp.autocomplete='off';inp.setAttribute('aria-label','Відповідь');b.textContent='Перевірити';b.className='go';
+  const go=()=>{if(inp.value.trim())check(inp.value)};b.onclick=go;inp.onkeydown=e=>{if(e.key==='Enter')go()};ctl.append(inp,b)}
+ return el;
+}
+function build(){
+ const nav=$('#nav'),main=$('#main');nav.innerHTML='';main.innerHTML='';
+ TABS.forEach((t,k)=>{
+  const b=document.createElement('button');b.textContent=t.name;b.dataset.t=t.id;b.onclick=()=>open(t.id);nav.append(b);
+  const p=document.createElement('section');p.className='panel';p.id='p-'+t.id;p.innerHTML=`<div class="intro">${t.intro}</div>`;
+  t.ex.forEach(id=>{const e=EX[id],d=document.createElement('div');d.className='ex';d.id='ex-'+id;
+   d.innerHTML=`<span class="sc"></span><h2>${e.t}</h2><p class="ins">${e.i}</p>`;
+   e.items.forEach((_,i)=>d.append(mkItem(id,i)));p.append(d)});
+  if(t.id==='speak')SP.forEach(s=>{const c=document.createElement('div');c.className='card';
+   c.innerHTML=`<h3>${s.t}</h3><div class="who">${s.a}</div>${s.b?`<div class="who">${s.b}</div>`:''}<p class="ph">💬 Скажи англійською: ${s.ph}</p><label class="chk"><input type="checkbox" ${S[s.id]?'checked':''}> Ми це зробили (+${SPPTS} б.)</label>`;
+   $('input',c).onchange=e=>{if(e.target.checked)S[s.id]=SPPTS;else delete S[s.id];save();upd()};p.append(c)});
+  const nx=document.createElement('div');nx.className='next';
+  if(TABS[k+1]){const nb=document.createElement('button');nb.textContent='Далі: '+TABS[k+1].name+' →';nb.onclick=()=>open(TABS[k+1].id);nx.append(nb)}else nx.textContent='🎉 Це був останній розділ. Молодець!';
+  p.append(nx);main.append(p)});
+ open(TABS[0].id);upd();
+}
+function open(id){document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===id));scrollTo(0,0)}
+function upd(){
+ let tot=0,max=0;
+ TABS.forEach(t=>{let done=true;
+  t.ex.forEach(id=>{const n=EX[id].items.length;let s=0,c=0;for(let i=0;i<n;i++){if(S[id+i]!=null){s+=S[id+i];c++}}
+   tot+=s;max+=n*10;if(c<n)done=false;$('#ex-'+id+' .sc').textContent=`${s} / ${n*10}`});
+  if(t.id==='speak'){SP.forEach(s=>{max+=SPPTS;if(S[s.id])tot+=SPPTS;else done=false})}
+  $(`nav button[data-t="${t.id}"]`).classList.toggle('full',done)});
+ $('#pts').textContent=tot;$('#max').textContent=max;$('#fill').style.width=(max?tot/max*100:0)+'%';
+ const r=max?tot/max:0;$('#rank').textContent=r>=.9?'🏆 Майстер шопінгу':r>=.7?'🥇 Чудово!':r>=.4?'🥈 Гарний прогрес':r>0?'🌱 Початок є':'';
+}
+$('#reset').onclick=()=>{if(confirm('Скинути всі бали й відповіді?')){S={};save();build()}};
+build();
+</script>
+</body>
+</html>
